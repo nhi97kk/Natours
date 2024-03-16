@@ -15,9 +15,10 @@ const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 const viewRouter = require('./routes/viewRoutes');
+const bookingRouter = require('./routes/bookingRoutes');
 
 const app = express();
-app.use(cors({ origin: 'http://localhost:3000' }));
+// app.use(cors({ origin: 'http://localhost:3000' }));
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
@@ -34,14 +35,15 @@ app.use(
         "'self'",
         "'unsafe-inline'",
         "'unsafe-eval'",
-        'https://cdn.jsdelivr.net'
+        'https://cdn.jsdelivr.net',
+        'https://js.stripe.com'
       ], // cho phép tải script từ trang web của bạn và một số nguồn an toàn khác
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'], // cho phép tải CSS từ trang web của bạn và một số nguồn an toàn khác
       fontSrc: ["'self'", 'https://fonts.gstatic.com'], // cho phép tải font từ trang web của bạn và một số nguồn an toàn khác
       imgSrc: ["'self'", 'data:'], // chỉ cho phép hiển thị hình ảnh từ trang web của bạn và dữ liệu base64
       connectSrc: ["'self'", 'ws://localhost:*'], // chỉ cho phép kết nối đến máy chủ từ chính trang web của bạn
       objectSrc: ["'none'"], // không cho phép tải các object từ bất kỳ nguồn nào
-      frameSrc: ["'none'"] // không cho phép nhúng frame từ bất kỳ nguồn nào
+      frameSrc: ["'self'", 'https://js.stripe.com']
     }
   })
 );
@@ -60,6 +62,7 @@ app.use('/api', limiter);
 
 //body parser, reading  data from the body into req.body
 app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 
 // Data sanitization against NoSQL query injection
@@ -94,6 +97,7 @@ app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/bookings', bookingRouter);
 
 //page not found
 app.all('*', (req, res, next) => {
